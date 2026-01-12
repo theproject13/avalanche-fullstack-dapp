@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Avalanche Wallet Connect</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>❄️ Avalanche dApp</h1>
+      <p class="subtitle">Connect to Core Wallet</p>
+
+      <button id="connectBtn">Connect Wallet</button>
+
+      <!-- Tombol switch network (hidden by default) -->
+      <button id="switchBtn" style="display: none; margin-top: 12px;">Switch to Fuji Testnet</button>
+
+      <div class="card">
+        <p><strong>Status:</strong> <span id="status">Not Connected</span></p>
+        <p><strong>Wallet Address:</strong></p>
+        <p id="address" title="">-</p>
+        <p><strong>Network:</strong> <span id="network">-</span></p>
+        <p><strong>Balance:</strong> <span id="balance">-</span> AVAX</p>
+        <p id="error" style="color: #e84118; font-weight: 600; margin-top:8px;">&nbsp;</p>
+      </div>
+
+      <div class="footer" style="font-size: small; margin-top: 20px;">
+        <p>Built by Moh Iqbal Baharsyah - 2210 1145 0341</p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
