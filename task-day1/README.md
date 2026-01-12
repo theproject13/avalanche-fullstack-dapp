@@ -1,5 +1,5 @@
 # avalanche-fullstack-dapp
-## DAY-1
+## TASK DAY-1
 ## Dibuat oleh Moh Iqbal Baharsyah
 
 ### Connected Wallet
