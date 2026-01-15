@@ -2,7 +2,7 @@ import { createConfig, http } from 'wagmi';
 import { avalancheFuji } from 'wagmi/chains';
 import { walletConnect } from 'wagmi/connectors';
 
-const wcProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '123ff64c403216f3244fbd49da9dfdfc';
+const wcProjectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
 
 export const wagmiConfig = createConfig({
   chains: [avalancheFuji],
