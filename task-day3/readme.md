@@ -109,7 +109,7 @@ npm run build
 
 ### Update Transaction ke Snowtrace
 
-![Update Snowtrace](apps/frontend/assets/update-to-snowtrace.jpeg)
+![update-snowtrace](<apps/frontend/assets/update-to-snowtrace .jpeg>) 
 
 ### Permission Wallet Connection
 
