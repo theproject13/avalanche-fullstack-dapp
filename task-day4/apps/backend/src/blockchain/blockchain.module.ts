@@ -4,6 +4,9 @@ import { BlockchainController } from './blockchain.controller';
 
 @Module({
   controllers: [BlockchainController],
-  providers: [BlockchainService],
+  providers: [
+    BlockchainService,
+    // IndexerService, // ← tambahin kalau indexer udah ada
+  ],
 })
 export class BlockchainModule {}

@@ -1,6 +1,6 @@
 // import { viem } from "hardhat";
 
-// import Artifact from "../artifacts/contracts/simple-storage.sol/SimpleStorage.json";
+// import Artifact from "../../artifacts/contracts/SimpleStorage.sol/SimpleStorage.json";
 
 // async function main() {
 //   // Wallet client (signer)

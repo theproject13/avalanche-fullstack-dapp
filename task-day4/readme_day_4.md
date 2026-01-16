@@ -120,122 +120,60 @@ Contoh response:
 Fungsi:
 - Fetch event `ValueUpdated`
 - Menggunakan block range
-- Digunakan untuk activity log UI
+# Day 4 — Backend Web3 (Avalanche Fullstack DApp)
 
-Best practice:
-- Jangan fetch dari block `0` di production
-- Gunakan pagination / block range
+This document explains how to run and verify the Day 4 backend (NestJS + viem).
 
-Endpoint:
+## Summary
+- Backend app: `apps/backend`
+- Connects to Avalanche Fuji RPC using `viem` (public client)
+- Endpoints implemented:
+  - `GET /blockchain/value` — read contract value
+  - `GET /blockchain/events` — fetch `ValueUpdated` events (supports pagination + raw)
+  - `GET /blockchain/log` — inspect raw log by block & index
 
-```http
-GET /blockchain/events
+## Prerequisites
+- Node.js >= 18
+- npm
+
+## Install & run
+```bash
+cd apps/backend
+npm install
+npm run start:dev
 ```
 
-Response:
+Swagger UI: http://localhost:3000/documentation
 
-```json
-[
-  {
-    "blockNumber": "123450",
-    "value": "40",
-    "txHash": "0xabc..."
-  }
-]
+## Example requests
+- Read value:
+```bash
+curl http://localhost:3000/blockchain/value
 ```
 
----
-
-## 🛡️ 2.7 Error Handling & RPC Failure
-
-Scenario yang ditangani:
-
-- RPC timeout
-- Network error
-- Unknown RPC failure
-
-### Contoh Error Response
-
-**RPC Timeout**
-
-```json
-{
-  "statusCode": 503,
-  "message": "RPC timeout. Silakan coba beberapa saat lagi.",
-  "error": "Service Unavailable"
-}
+- Query events (decoded + raw):
+```bash
+curl "http://localhost:3000/blockchain/events?fromBlock=50489513&toBlock=50489513&offset=0&limit=10&raw=true"
 ```
 
-**Network Error**
-
-```json
-{
-  "statusCode": 503,
-  "message": "Tidak dapat terhubung ke blockchain RPC.",
-  "error": "Service Unavailable"
-}
+- Inspect raw log by block/index:
+```bash
+curl "http://localhost:3000/blockchain/log?block=50511054&index=70"
 ```
 
-**Unknown Error**
+## Developer checks
+- Type check: `npx tsc --noEmit`
+- Lint: `npm run lint`
 
-```json
-{
-  "statusCode": 500,
-  "message": "Terjadi kesalahan saat membaca data blockchain.",
-  "error": "Internal Server Error"
-}
+## Notes
+- Ensure `contractAddress` in `apps/backend/src/blockchain/blockchain.service.ts` matches your deployed contract on Fuji.
+- `decoded` field will be present if the log matches the contract ABI; otherwise the backend returns raw hex fields.
+- `offset` is 0-based and applies to filtered events.
+
+## Submission
+- Provide server URL (or instructions to run locally) and example curl commands (above).
+
+If you want, I can add a short automated e2e test or update README with example responses.
 ```
 
----
-
-## 📝 Homework – Day 4 (40 Menit)
-
-### 🟢 Task 1 – Setup Blockchain Module (Wajib)
-- Buat module `blockchain`
-- Setup viem public client
-- Konfigurasi Avalanche Fuji RPC
-
-### 🟢 Task 2 – Read Smart Contract (Wajib)
-- Endpoint `getValue()`
-- Return JSON response
-
-### 🟢 Task 3 – Event Query (Wajib)
-- Endpoint event `ValueUpdated`
-- Return `blockNumber` & `value`
-
-### 🟡 Task 4 – API Design (Opsional)
-- Pagination sederhana
-- Response format konsisten
-- Error handling rapi
-
-### 🔵 Task 5 – Integration Test (Opsional)
-- Test via browser / Postman
-- Validasi response API
-
----
-
-## 🧪 Checklist Submission
-
-- [ ] Backend NestJS berjalan
-- [ ] viem terhubung ke Fuji RPC
-- [ ] API bisa read contract
-- [ ] Event bisa di-fetch
-- [ ] Frontend bisa consume API
-
-📅 **Deadline**: 17 Januari 2026 – 23.59 WIB
-
----
-
-## ✅ Output Day 4
-
-Peserta:
-- Memiliki backend API Web3 aktif
-- Bisa membaca data blockchain via REST API
-- Memahami:
-  - Backend Web3 ≠ Backend Web2
-  - On-chain vs off-chain responsibility
-  - Peran backend dalam UX dApp
-  - viem sebagai bridge ke blockchain
-
-Siap lanjut ke **Day 5 – Production & Scaling dApp** 🚀
 

@@ -1,0 +1,31 @@
+{
+  "name": "contracts",
+  "version": "0.0.1",
+  "description": "Smart Conrtacts Task day-2",
+  "keywords": [
+    "contracts",
+    "soladity",
+    "core",
+    "web3"
+  ],
+  "homepage": "https://github.com/theproject13/avalanche-fullstack-dapp/tree/main#readme",
+  "bugs": {
+    "url": "https://github.com/theproject13/avalanche-fullstack-dapp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theproject13/avalanche-fullstack-dapp.git#main"
+  },
+  "license": "ISC",
+  "author": "Iqbal Baharsyah",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-viem": "^5.0.1",
+    "dotenv": "^17.2.3",
+    "hardhat": "^3.1.4"
+  }
+}

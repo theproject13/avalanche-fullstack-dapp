@@ -1,34 +1,64 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { BlockchainService } from './blockchain.service';
-import { CreateBlockchainDto } from './dto/create-blockchain.dto';
-import { UpdateBlockchainDto } from './dto/update-blockchain.dto';
+import { GetEventsDto } from './dto/get-events.dto';
+import { ApiParam, ApiOperation, ApiResponse } from '@nestjs/swagger'; // tambah ApiOperation & ApiResponse
 
 @Controller('blockchain')
 export class BlockchainController {
-  constructor(private readonly blockchainService: BlockchainService) {}
+  constructor(private readonly service: BlockchainService) {}
 
-  @Post()
-  create(@Body() createBlockchainDto: CreateBlockchainDto) {
-    return this.blockchainService.create(createBlockchainDto);
+  @Get('value')
+  getLatestValue() {
+    return this.service.getLatestValue();
   }
 
-  @Get()
-  findAll() {
-    return this.blockchainService.findAll();
+  // Historical value endpoint – dengan @ApiParam multi-line rapi
+  @Get('value-at/:block')
+  @ApiParam({
+    name: 'block',
+    example: 50489513,
+    description: 'Block number untuk baca historical value',
+  })
+  getValueAtBlock(@Param('block', ParseIntPipe) block: number) {
+    return this.service.getValueAtBlock(block);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.blockchainService.findOne(+id);
+  @Get('events')
+  getEvents(@Query() query: GetEventsDto) {
+    return this.service.getValueUpdatedEvents(
+      query.fromBlock,
+      query.toBlock,
+      query.offset ?? 0,
+      query.limit ?? 10,
+      query.raw ?? false,
+    );
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBlockchainDto: UpdateBlockchainDto) {
-    return this.blockchainService.update(+id, updateBlockchainDto);
+  @Get('log')
+  getLogByIndex(@Query('block') block: number, @Query('index') index: number) {
+    return this.service.getLogByBlockAndIndex(Number(block), Number(index));
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.blockchainService.remove(+id);
+  // Endpoint baru: Demo recent events dengan range otomatis
+  @Get('events-sample')
+  @ApiOperation({
+    summary: 'Ambil ValueUpdated events terbaru (demo 500 block terakhir)',
+    description:
+      'Endpoint ini secara otomatis ambil current block number, lalu query events dari 500 block terakhir.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Recent events berhasil di-fetch (bisa kosong kalau belum ada transaksi baru)',
+  })
+  @ApiResponse({
+    status: 503,
+    description: 'RPC error (timeout atau koneksi gagal)',
+  })
+  async getSampleEvents(): Promise<{ success: boolean; data: any[]; meta: { total: number; offset: number; limit: number; }; }> {
+    const currentBlock = await this.service.getCurrentBlockNumber();
+    const fromBlock = Math.max(0, currentBlock - 500); // range aman < MAX_BLOCK_RANGE
+    const toBlock = currentBlock;
+
+    return this.service.getValueUpdatedEvents(fromBlock, toBlock, 0, 50, false);
   }
 }
