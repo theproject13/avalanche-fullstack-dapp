@@ -1,8 +1,8 @@
 export const apiBase = 
-  process.env.NEXT_PUBLIC_API_BASE! || 'https://project13-beiqbalbaharsyah.up.railway.app';
+  process.env.NEXT_PUBLIC_API_BASE;
   
-  console.log('API BASE:', apiBase);
-  
+  // console.log('API BASE:', apiBase);
+
 export async function getEventLogs() {
   const res = await fetch(`${apiBase}/event-logs`, { cache: 'no-store' });
   if (!res.ok) throw new Error(`Failed to fetch event logs: ${res.status}`);
