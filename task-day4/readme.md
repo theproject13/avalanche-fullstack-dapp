@@ -1,188 +1,208 @@
 # Avalanche Full Stack dApp (Monorepo)
 
-Concise guide for integrating and deploying the full stack dApp across Contracts (Hardhat), Backend (NestJS), and Frontend (Next.js, wagmi, viem).
+Concise guide for integrating and deploying a full stack Web3 dApp using **Avalanche**, covering **Smart Contracts (Hardhat)**, **Backend (NestJS)**, and **Frontend (Next.js with wagmi & viem)**.
 
 ---
 
 ## Repository Structure
 ```
 apps/
-  backend/        # NestJS API (MongoDB, viem, Swagger)
-    src/
-    package.json
-  contracts/      # Hardhat (Solidity contracts & deployment)
-    contracts/
-    scripts/
-    hardhat.config.ts
-    package.json
-  frontend/
-    my-app/       # Next.js (App Router, wagmi + viem)
-      app/
-      src/
-      package.json
+├─ backend/          # NestJS API (MongoDB, viem, Swagger)
+│  ├─ src/
+│  └─ package.json
+├─ contracts/        # Hardhat (Solidity contracts & deployment scripts)
+│  ├─ contracts/
+│  ├─ scripts/
+│  ├─ hardhat.config.ts
+│  └─ package.json
+└─ frontend/
+   └─ my-app/        # Next.js App Router (wagmi + viem)
+      ├─ app/
+      ├─ src/
+      └─ package.json
+
 assets/
 .env.example
-readme.md
+README.md
 ```
 
 ---
 
 ## Prerequisites
-- Node.js LTS, Git
-- MongoDB (Atlas or local) connection string
-- Wallet for Avalanche Fuji testnet (for transactions)
+- Node.js LTS
+- Git
+- MongoDB (Atlas or local)
+- Wallet with AVAX Fuji testnet balance
 
 ---
 
-## Step-by-Step Setup (Local)
+## Local Setup
 
-1) Install dependencies per workspace
-- Backend (NestJS)
-```sh
+### 1) Install Dependencies
+**Backend**
+```bash
 cd apps/backend
 npm install
 ```
-- Frontend (Next.js)
-```sh
+
+**Frontend**
+```bash
 cd apps/frontend/my-app
 npm install
 ```
-- Contracts (Hardhat)
-```sh
+
+**Contracts**
+```bash
 cd apps/contracts
 npm install
 ```
 
-2) Configure environment variables
-- Backend (.env in apps/backend)
+---
+
+### 2) Environment Variables
+
+**Backend — `apps/backend/.env`**
 ```
 MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>/<db>
 CORS_ORIGIN=http://localhost:3000
 CONTRACT_ADDRESS=0x<deployed_contract_on_fuji>
 POSTGRES_ENABLE=false
 ```
-- Frontend (.env.local in apps/frontend/my-app)
+
+**Frontend — `apps/frontend/my-app/.env.local`**
 ```
 NEXT_PUBLIC_API_BASE=http://localhost:3001
 NEXT_PUBLIC_CONTRACT_ADDRESS=0x<deployed_contract_on_fuji>
 ```
-- Contracts (.env optional in apps/contracts)
+
+**Contracts — `apps/contracts/.env` (optional)**
 ```
-# RPC/keys if needed for deploy; NEVER commit private keys
+# RPC URL / PRIVATE_KEY for deployment
+# NEVER commit private keys
 ```
 
-3) Run locally
-- Backend (NestJS)
-```sh
+---
+
+### 3) Run Locally
+
+**Backend**
+```bash
 cd apps/backend
-npm run start:dev   # listens on PORT or 3001
+npm run start:dev
 ```
-Endpoints:
-- GET /blockchain/value
-- GET /blockchain/value-at/:block
-- GET /blockchain/events
-- GET /blockchain/log
-- GET /blockchain/events-sample
-- POST /event-logs, GET /event-logs
-- Swagger: /documentation
+Runs on `http://localhost:3001`
 
-- Frontend (Next.js)
-```sh
+Available endpoints:
+- `GET /blockchain/value`
+- `GET /blockchain/value-at/:block`
+- `GET /blockchain/events`
+- `GET /blockchain/log`
+- `GET /blockchain/events-sample`
+- `POST /event-logs`
+- `GET /event-logs`
+- Swagger: `/documentation`
+
+**Frontend**
+```bash
 cd apps/frontend/my-app
-npm run dev         # http://localhost:3000
+npm run dev
 ```
-Ensure NEXT_PUBLIC_API_BASE points to backend (http://localhost:3001).
+Access via `http://localhost:3000`
 
-- Contracts (Hardhat)
-```sh
+**Contracts**
+```bash
 cd apps/contracts
 npx hardhat compile
-# Example deploy to Fuji (adjust script/network config)
 npx hardhat run scripts/deployment.ts --network fuji
 ```
-Copy the deployed address to:
-- NEXT_PUBLIC_CONTRACT_ADDRESS (frontend)
-- CONTRACT_ADDRESS (backend, if used for reads)
+Copy deployed contract address to frontend & backend env.
 
 ---
 
 ## Integration Flow
-- Read: Frontend → Backend API → Blockchain (via viem on backend)
-- Write (tx): Frontend → Wallet → Blockchain (backend is not in tx path)
+- **Read:** Frontend → Backend API → Blockchain (via viem)
+- **Write (Tx):** Frontend → Wallet → Blockchain  
+  (Backend is **not** involved in sending transactions)
 
 ---
 
 ## Deployment
 
-Backend (Railway)
-1) Ensure scripts in apps/backend/package.json support build/start:
-   - build: `nest build`
-   - start:prod: `node dist/main`
-2) Railway uses `process.env.PORT` (already handled in code)
-3) Set variables (Railway → Variables):
+### Backend (Railway)
+1. Ensure scripts:
+   - `build`: `nest build`
+   - `start:prod`: `node dist/main`
+2. Railway listens on `process.env.PORT`
+3. Set Railway variables:
 ```
 MONGODB_URI=mongodb+srv://...
 CORS_ORIGIN=https://<frontend>.vercel.app[,https://<preview>.vercel.app]
 CONTRACT_ADDRESS=0x...
 ```
-4) Deploy via GitHub repo integration and verify:
-   - https://<project>.up.railway.app/documentation
-   - /event-logs, /blockchain/* endpoints
+4. Deploy via GitHub integration
+5. Verify:
+   - `/documentation`
+   - `/blockchain/*`
+   - `/event-logs`
 
-Frontend (Vercel)
-1) Set env (Project → Settings → Environment Variables):
+---
+
+### Frontend (Vercel)
+1. Set environment variables:
 ```
 NEXT_PUBLIC_API_BASE=https://<backend>.up.railway.app
 NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
 ```
-2) Deploy and verify via DevTools Network that calls to /event-logs and /blockchain/* return 200/201.
-
-Contracts
-- Deploy to Fuji/Mainnet using Hardhat; update addresses in FE/BE envs.
+2. Deploy
+3. Verify via browser DevTools:
+   - Network calls return `200/201`
+   - Requests target Railway backend
 
 ---
 
-## Day 5 — Concise Tasks & Checklist
-1) Integrate Frontend & Backend (Required)
-- Frontend consumes backend API (no direct RPC). Display blockchain data.
+### Contracts
+- Deploy via Hardhat to Fuji/Mainnet
+- Update deployed address in frontend & backend env
 
-2) Integrate Transactions (Required)
-- User updates on-chain state via wallet; UI refreshes via backend reads.
+---
 
-3) Environment Config (Required)
-- Separate local/prod via .env; avoid hardcoding.
+## Day 5 — Tasks & Checklist
 
-4) Deployment (Optional)
-- Backend on Railway; Frontend on Vercel; use Fuji testnet.
+**Required**
+- Frontend consumes backend API (no direct RPC)
+- Wallet-based transaction flow
+- Environment separation (local vs production)
 
-5) Final Polish (Optional)
-- Loading states, error handling, UI improvements.
+**Optional**
+- Production deployment (Railway + Vercel)
+- UI/UX polish (loading, error states)
 
-Final checklist
-- Contract deployed (address/ABI saved)
-- Backend live and reachable
-- Frontend live and calling backend
+**Final Checklist**
+- Contract deployed
+- Backend live
+- Frontend live
 - Wallet connect works
 - Read & write verified end-to-end
 
-Quiz Day 5: add your link here.
-
 ---
 
-## Troubleshooting (CORS & ENV)
-- CORS blocked in browser:
-  - Set CORS_ORIGIN on Railway to exact Vercel origin(s) and redeploy.
-- Frontend still calls wrong URL:
-  - Ensure NEXT_PUBLIC_API_BASE is correct; redeploy Vercel (env is baked at build).
-- Validate from Git Bash:
-```sh
-curl -X POST "https://<backend>.up.railway.app/event-logs" \
-  -H "Content-Type: application/json" \
-  -d '{"event":"from-vercel","payload":{"t":123}}'
+## Troubleshooting
+
+**CORS error**
+- Ensure `CORS_ORIGIN` matches exact Vercel domain
+- Redeploy backend
+
+**Wrong API URL**
+- Check `NEXT_PUBLIC_API_BASE`
+- Redeploy frontend (env baked at build time)
+
+**Test via Git Bash**
+```bash
+curl -X POST "https://<backend>.up.railway.app/event-logs"   -H "Content-Type: application/json"   -d '{"event":"from-vercel","payload":{"t":123}}'
 
 curl -X GET "https://<backend>.up.railway.app/event-logs"
 ```
 
 ---
 
-© Avalanche Indonesia Short Course — Day 5
+© iqbalbaharsyah — Avalanche Short Course Day 1–5
