@@ -1,4 +1,4 @@
-export const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001';
+export const apiBase = process.env.NEXT_PUBLIC_API_BASE;
 
 export async function getEventLogs() {
   const res = await fetch(`${apiBase}/event-logs`, { cache: 'no-store' });
