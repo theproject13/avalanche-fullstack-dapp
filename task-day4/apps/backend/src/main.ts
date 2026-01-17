@@ -18,7 +18,9 @@ async function bootstrap() {
   // If CORS_ORIGIN is set, allow listed origins and enable credentials.
   // Otherwise, allow '*' and disable credentials to satisfy browser CORS rules.
   const corsOriginEnv = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
+    ? process.env.CORS_ORIGIN.split(',')
+    .map((o) => o.trim())
+    .filter(Boolean)
     : undefined;
 
   const hasCustomOrigins = !!(corsOriginEnv && corsOriginEnv.length > 0);
