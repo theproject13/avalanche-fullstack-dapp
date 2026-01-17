@@ -1,142 +1,188 @@
-# Project dApps – Day 3 (Frontend)
+# Avalanche Full Stack dApp (Monorepo)
 
-Dokumentasi setup dan hasil implementasi **Frontend dApp (Next.js)** pada project **Avalanche Fullstack dApp**. Fokus Day 3 adalah integrasi wallet (WalletConnect), koneksi blockchain Avalanche, dan interaksi smart contract.
+Concise guide for integrating and deploying the full stack dApp across Contracts (Hardhat), Backend (NestJS), and Frontend (Next.js, wagmi, viem).
 
 ---
 
-## 📁 Struktur Project
-
-```text
-avalanche-fullstack-dapp/
-├── apps/
-│   ├── frontend/     # Next.js dApp (Day 3)
-│   ├── backend/      # NestJS API
-│   └── contracts/    # Solidity & Hardhat (Day 2)
-│
-├── docs/             # Modul pembelajaran Day 1–Day 5
-├── docker/           # Optional Docker setup
-├── .env.example
-└── README.md
+## Repository Structure
+```
+apps/
+  backend/        # NestJS API (MongoDB, viem, Swagger)
+    src/
+    package.json
+  contracts/      # Hardhat (Solidity contracts & deployment)
+    contracts/
+    scripts/
+    hardhat.config.ts
+    package.json
+  frontend/
+    my-app/       # Next.js (App Router, wagmi + viem)
+      app/
+      src/
+      package.json
+assets/
+.env.example
+readme.md
 ```
 
 ---
 
-## 🚀 2.1 Setup Frontend Project
+## Prerequisites
+- Node.js LTS, Git
+- MongoDB (Atlas or local) connection string
+- Wallet for Avalanche Fuji testnet (for transactions)
 
-Masuk ke direktori frontend:
+---
 
-```bash
-cd apps/frontend
+## Step-by-Step Setup (Local)
+
+1) Install dependencies per workspace
+- Backend (NestJS)
+```sh
+cd apps/backend
+npm install
 ```
-
-Install dependency awal:
-
-```bash
+- Frontend (Next.js)
+```sh
+cd apps/frontend/my-app
+npm install
+```
+- Contracts (Hardhat)
+```sh
+cd apps/contracts
 npm install
 ```
 
-Jika project belum dibuat, generate Next.js app:
-
-```bash
-npx create-next-app@latest my-app
-cd my-app
+2) Configure environment variables
+- Backend (.env in apps/backend)
+```
+MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>/<db>
+CORS_ORIGIN=http://localhost:3000
+CONTRACT_ADDRESS=0x<deployed_contract_on_fuji>
+POSTGRES_ENABLE=false
+```
+- Frontend (.env.local in apps/frontend/my-app)
+```
+NEXT_PUBLIC_API_BASE=http://localhost:3001
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x<deployed_contract_on_fuji>
+```
+- Contracts (.env optional in apps/contracts)
+```
+# RPC/keys if needed for deploy; NEVER commit private keys
 ```
 
-Jalankan development server:
-
-```bash
-npm run dev
+3) Run locally
+- Backend (NestJS)
+```sh
+cd apps/backend
+npm run start:dev   # listens on PORT or 3001
 ```
+Endpoints:
+- GET /blockchain/value
+- GET /blockchain/value-at/:block
+- GET /blockchain/events
+- GET /blockchain/log
+- GET /blockchain/events-sample
+- POST /event-logs, GET /event-logs
+- Swagger: /documentation
 
-Akses aplikasi di browser:
+- Frontend (Next.js)
+```sh
+cd apps/frontend/my-app
+npm run dev         # http://localhost:3000
+```
+Ensure NEXT_PUBLIC_API_BASE points to backend (http://localhost:3001).
 
-```text
-http://localhost:3000
+- Contracts (Hardhat)
+```sh
+cd apps/contracts
+npx hardhat compile
+# Example deploy to Fuji (adjust script/network config)
+npx hardhat run scripts/deployment.ts --network fuji
+```
+Copy the deployed address to:
+- NEXT_PUBLIC_CONTRACT_ADDRESS (frontend)
+- CONTRACT_ADDRESS (backend, if used for reads)
+
+---
+
+## Integration Flow
+- Read: Frontend → Backend API → Blockchain (via viem on backend)
+- Write (tx): Frontend → Wallet → Blockchain (backend is not in tx path)
+
+---
+
+## Deployment
+
+Backend (Railway)
+1) Ensure scripts in apps/backend/package.json support build/start:
+   - build: `nest build`
+   - start:prod: `node dist/main`
+2) Railway uses `process.env.PORT` (already handled in code)
+3) Set variables (Railway → Variables):
+```
+MONGODB_URI=mongodb+srv://...
+CORS_ORIGIN=https://<frontend>.vercel.app[,https://<preview>.vercel.app]
+CONTRACT_ADDRESS=0x...
+```
+4) Deploy via GitHub repo integration and verify:
+   - https://<project>.up.railway.app/documentation
+   - /event-logs, /blockchain/* endpoints
+
+Frontend (Vercel)
+1) Set env (Project → Settings → Environment Variables):
+```
+NEXT_PUBLIC_API_BASE=https://<backend>.up.railway.app
+NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
+```
+2) Deploy and verify via DevTools Network that calls to /event-logs and /blockchain/* return 200/201.
+
+Contracts
+- Deploy to Fuji/Mainnet using Hardhat; update addresses in FE/BE envs.
+
+---
+
+## Day 5 — Concise Tasks & Checklist
+1) Integrate Frontend & Backend (Required)
+- Frontend consumes backend API (no direct RPC). Display blockchain data.
+
+2) Integrate Transactions (Required)
+- User updates on-chain state via wallet; UI refreshes via backend reads.
+
+3) Environment Config (Required)
+- Separate local/prod via .env; avoid hardcoding.
+
+4) Deployment (Optional)
+- Backend on Railway; Frontend on Vercel; use Fuji testnet.
+
+5) Final Polish (Optional)
+- Loading states, error handling, UI improvements.
+
+Final checklist
+- Contract deployed (address/ABI saved)
+- Backend live and reachable
+- Frontend live and calling backend
+- Wallet connect works
+- Read & write verified end-to-end
+
+Quiz Day 5: add your link here.
+
+---
+
+## Troubleshooting (CORS & ENV)
+- CORS blocked in browser:
+  - Set CORS_ORIGIN on Railway to exact Vercel origin(s) and redeploy.
+- Frontend still calls wrong URL:
+  - Ensure NEXT_PUBLIC_API_BASE is correct; redeploy Vercel (env is baked at build).
+- Validate from Git Bash:
+```sh
+curl -X POST "https://<backend>.up.railway.app/event-logs" \
+  -H "Content-Type: application/json" \
+  -d '{"event":"from-vercel","payload":{"t":123}}'
+
+curl -X GET "https://<backend>.up.railway.app/event-logs"
 ```
 
 ---
 
-## 📦 Install Dependencies dApp
-
-Library utama untuk Web3 & state management:
-
-```bash
-npm install wagmi viem @tanstack/react-query
-```
-
-WalletConnect provider:
-
-```bash
-npm install @walletconnect/ethereum-provider
-```
-
-Notifikasi UI (opsional tapi direkomendasikan):
-
-```bash
-npm install react-hot-toast
-# atau
-yarn add react-hot-toast
-```
-
-Build project untuk production:
-
-```bash
-npm run build
-```
-
----
-
-## 🔗 Fitur yang Diimplementasikan
-
-- Koneksi wallet menggunakan **WalletConnect**
-- Support jaringan **Avalanche (Fuji / Mainnet)**
-- Connect & disconnect wallet
-- Permission request ke wallet
-- Read value dari smart contract
-- Update value dan tracking transaksi via Snowtrace
-
----
-
-## 🖼️ Hasil / Result Run Project
-
-### Connect Wallet
-
-![Connect Wallet](apps/frontend/assets/connect-wallet.jpeg)
-
-### Disconnect Wallet
-
-![Disconnect Wallet](apps/frontend/assets/disconnect-.jpeg)
-
-### Update Transaction ke Snowtrace
-
-![update-snowtrace](<apps/frontend/assets/update-to-snowtrace .jpeg>) 
-
-### Permission Wallet Connection
-
-![Permission Wallet](apps/frontend/assets/permission-walletconnection.jpeg)
-
-### Permission Get Value
-
-![Permission Get Value](apps/frontend/assets/permission-getvalue.jpeg)
-
-### Update Value Smart Contract
-
-![Update Value](apps/frontend/assets/update-value.jpeg)
-
----
-
-## ✅ Catatan Teknis
-
-- Pastikan **WalletConnect Project ID** sudah dibuat dan disimpan di `.env`
-- Gunakan **Avalanche Fuji** untuk testing
-- `wagmi` + `viem` digunakan sebagai best practice Web3 stack modern (menggantikan ethers.js lama)
-- Frontend sudah siap diintegrasikan dengan backend (NestJS) dan smart contract (Hardhat)
-
----
-
-## 📌 Status
-
-✔ Frontend dApp Day 3 – **Completed & Running Successfully**
-
-Siap lanjut ke integrasi backend (Day 4).
-
+© Avalanche Indonesia Short Course — Day 5
