@@ -15,10 +15,12 @@ async function bootstrap() {
   );
 
   // Enable CORS for the frontend
+  const corsOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
+    : ['https://avalanche-fullstack-byiqbal.vercel.app/'];
+
   app.enableCors({
-    origin: (process.env.CORS_ORIGIN || 'http://localhost:3000')
-      .split(',')
-      .map((s) => s.trim()),
+    origin: corsOrigins,
     credentials: true,
   });
 
