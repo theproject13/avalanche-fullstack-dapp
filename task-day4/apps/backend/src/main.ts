@@ -14,14 +14,20 @@ async function bootstrap() {
     }),
   );
 
-  // Enable CORS for the frontend
-  const corsOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
-    : ['*'];
+  // Enable CORS for the frontend (safer defaults)
+  // If CORS_ORIGIN is set, allow listed origins and enable credentials.
+  // Otherwise, allow '*' and disable credentials to satisfy browser CORS rules.
+  const corsOriginEnv = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
+    : undefined;
+
+  const hasCustomOrigins = !!(corsOriginEnv && corsOriginEnv.length > 0);
 
   app.enableCors({
-    origin: corsOrigins,
-    credentials: true,
+    origin: hasCustomOrigins ? corsOriginEnv : '*',
+    credentials: hasCustomOrigins,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   const config = new DocumentBuilder()
