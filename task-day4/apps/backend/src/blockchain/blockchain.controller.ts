@@ -48,17 +48,25 @@ export class BlockchainController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Recent events berhasil di-fetch (bisa kosong kalau belum ada transaksi baru)',
+    description:
+      'Recent events berhasil di-fetch (bisa kosong kalau belum ada transaksi baru)',
   })
   @ApiResponse({
     status: 503,
     description: 'RPC error (timeout atau koneksi gagal)',
   })
-  async getSampleEvents(): Promise<{ success: boolean; data: any[]; meta: { total: number; offset: number; limit: number; }; }> {
+  async getSampleEvents(): Promise<{
+    success: boolean;
+    data: any[];
+    meta: {
+      total: number;
+      offset: number;
+      limit: number;
+    };
+  }> {
     const currentBlock = await this.service.getCurrentBlockNumber();
     const fromBlock = Math.max(0, currentBlock - 500); // range aman < MAX_BLOCK_RANGE
     const toBlock = currentBlock;
 
     return this.service.getValueUpdatedEvents(fromBlock, toBlock, 0, 50, false);
-  }
-}
+  }}

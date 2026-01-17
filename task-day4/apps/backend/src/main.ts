@@ -14,6 +14,14 @@ async function bootstrap() {
     }),
   );
 
+  // Enable CORS for the frontend
+  app.enableCors({
+    origin: (process.env.CORS_ORIGIN || 'http://localhost:3000')
+      .split(',')
+      .map((s) => s.trim()),
+    credentials: true,
+  });
+
   const config = new DocumentBuilder()
     .setTitle('Backend API Moh Iqbal Baharsyah')
     .setDescription('Blockchain API')
@@ -23,6 +31,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('documentation', app, document);
 
-  await app.listen(3000);
+  const port = Number(process.env.PORT || 3001);
+  await app.listen(port);
 }
 void bootstrap();
