@@ -25,7 +25,7 @@ Berikut adalah struktur project Full Stack dApp (Monorepo):
 
 ### Frontend & Wallet Integration
 - Frontend berhasil terhubung ke backend
-- Wallet (MetaMask / WalletConnect) berfungsi normal
+- Wallet (CoreWallet / WalletConnect) berfungsi normal
 - Interaksi smart contract berjalan end-to-end
 
 ![Frontend Connected](task-day4/assets/day-5-UI-FE-connected.jpeg)
